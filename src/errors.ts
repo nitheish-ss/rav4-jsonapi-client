@@ -1,4 +1,4 @@
-import { HttpError, useNotify } from 'react-admin';
+import { HttpError} from 'react-admin';
 
 export class NotImplementedError extends Error {
   constructor(message: string) {
