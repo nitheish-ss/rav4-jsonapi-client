@@ -5,10 +5,6 @@ import { defaultSettings } from './default-settings';
 import ResourceLookup from './resourceLookup';
 
 /**
- * https://github.com/marmelab/react-admin/blob/master/packages/ra-data-simple-rest/src/index.ts
- * Latest commit 44a1d8f on 6 Dec 2020
- * 44a1d8f569db23a7fc826c1a9094e4e041cc51da
- * https://github.com/marmelab/react-admin/tree/44a1d8f569db23a7fc826c1a9094e4e041cc51da
  *
  * Maps react-admin queries to a simple REST API
  *
@@ -65,28 +61,6 @@ export const jsonapiClient = (
   
   return {
     getList: (resource: string, params: any) => {
-       
-      /* const { page, perPage } = params.pagination
-    const { field, order } = params.sort
-
-    const rangeStart = (page - 1) * perPage
-    const rangeEnd = page * perPage - 1
-
-    const query = {
-      sort: JSON.stringify([field, order]),
-      range: JSON.stringify([rangeStart, rangeEnd]),
-      filter: JSON.stringify(params.filter)
-    }
-    const url = `${apiUrl}/${resource}?${stringify(query)}`
-    const options =
-      countHeader === 'Content-Range'
-        ? {
-            // Chrome doesn't return `Content-Range` header if no `Range` is provided in the request.
-            headers: new Headers({
-              Range: `${resource}=${rangeStart}-${rangeEnd}`
-            })
-          }
-        : {} */
       resource = decodeURI(resource)
       const { page, perPage } = params.pagination;
       console.log(page, perPage);
@@ -152,14 +126,6 @@ export const jsonapiClient = (
           const jsonData = json.data.map((resource: any) =>
             lookup.unwrapData(resource, includes)
           );
-          /* const jsonData = json.data.map((value: any) => {
-          const relAttributeKey = Object.keys(value)[0];
-          return Object.assign(
-            { id: value.id },
-            value.attributes,
-            value[relAttributeKey]
-          );
-        }); */
 
           return {
             data: jsonData,
@@ -172,11 +138,6 @@ export const jsonapiClient = (
           return Promise.reject(errorHandler(err));
         });
     },
-
-    /* getOne: (resource, params) =>
-      httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
-        data: json.data
-      })), */
 
     getOne: (resource: any, params: { id: any }) => {
       resource = decodeURI(resource)
@@ -197,11 +158,7 @@ export const jsonapiClient = (
     getMany: (resource: string, params: any) => {
       resource = decodeURI(resource)
       resource = capitalize(resource);
-      /* const query = {
-        filter: JSON.stringify({ id: params.ids })
-      }; */
       let query = `filter[id]=${params.ids instanceof Array ? params.ids.join(',') : JSON.stringify(params.ids)}`
-      // const url = `${apiUrl}/${resource}?${stringify(query)}`;
       const url = `${apiUrl}/${resource}?${query}`;
       return httpClient(url).then(({ json }: any) => {
         // When meta data and the 'total' setting is provided try
@@ -227,10 +184,6 @@ export const jsonapiClient = (
       resource = decodeURI(resource)
       const { page, perPage } = params.pagination;
       const { field, order } = params.sort;
-
-      // const rangeStart = (page - 1) * perPage;
-      // const rangeEnd = page * perPage - 1;
-
       const query = {
         sort: JSON.stringify([field, order]),
         range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
@@ -241,14 +194,6 @@ export const jsonapiClient = (
       query[`filter[${params.target}]`] = params.id
       const url = `${apiUrl}/${resource}?${stringify(query)}`;
       const options = {};
-      /* countHeader === 'Content-Range'
-          ? {
-              // Chrome doesn't return `Content-Range` header if no `Range` is provided in the request.
-              headers: new Headers({
-                Range: `${resource}=${rangeStart}-${rangeEnd}`
-              })
-            }
-          : {} */
 
       return httpClient(url, options).then(({ headers, json }: any) => {
         if (!headers.has(countHeader)) {
@@ -259,13 +204,6 @@ export const jsonapiClient = (
         return {
           data: json.data,
           total: 100
-          /*  countHeader === 'Content-Range'
-              ? parseInt(
-                  headers.get('content-range') ?? ''.split('/').pop() ?? '10',
-                  10
-                )
-              : parseInt(headers.get(countHeader.toLowerCase()) ?? '0')
-        }; */
         };
       });
     },
@@ -293,16 +231,6 @@ export const jsonapiClient = (
       })
         .then(({ json }: any) => {
           const { id, attributes } = json.data;
-          /* const attributes = json.data;
-           delete attributes.id;
-          const updateData: any = {
-            any too keep compiler happy 
-           data: {
-              id: params.id,
-              type: resource,
-              attributes: attributes
-            }
-          }; */
           return {
             data: {
               id,
@@ -327,14 +255,6 @@ export const jsonapiClient = (
           })
         )
       ).then((responses) => ({ data: responses.map(({ json }) => json.id) })),
-
-    /* create_old: (resource, params) =>
-      httpClient(`${apiUrl}/${resource}`, {
-        method: 'POST',
-        body: JSON.stringify(params.data)
-      }).then(({ json }) => ({
-        data: { ...params.data, id: json.id }
-      })), */
 
     create: (resource: string, params: any) => {
       resource = decodeURI(resource)
