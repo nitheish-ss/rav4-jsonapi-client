@@ -51,19 +51,17 @@ export const jsonapiClient = (
   countHeader: string = 'Content-Range'
 ): DataProvider => {
   const settings = merge(defaultSettings, userSettings);
-  let conf = {"resources" : {}};
-  try{
-    conf = JSON.parse(localStorage.getItem('raconf')||"");
+  let conf = { resources: {} };
+  try {
+    conf = JSON.parse(localStorage.getItem('raconf') || '');
+  } catch (e) {
+    console.warn('Failed to parse config', e);
   }
-  catch(e){
-    console.warn("Failed to parse config");
-  }
-  
+
   return {
     getList: (resource: string, params: any) => {
-      resource = decodeURI(resource)
+      resource = decodeURI(resource);
       const { page, perPage } = params.pagination;
-      console.log(page, perPage);
 
       // Create query with pagination params.
       const query = {
@@ -75,16 +73,19 @@ export const jsonapiClient = (
       };
 
       // Add all filter params to query.
-      if(params.filter?.q){
+      if (params.filter?.q) {
         // search is requested by react-admin
         const search_cols = conf.resources[resource].search_cols || [];
-        query['filter'] = JSON.stringify(search_cols.map((col_name: string) => {return { 
-                              "name":col_name,
-                              "op":"like",
-                              "val":`${params.filter.q}%`};})
-            )
-      }
-      else{
+        query['filter'] = JSON.stringify(
+          search_cols.map((col_name: string) => {
+            return {
+              name: col_name,
+              op: 'like',
+              val: `${params.filter.q}%`
+            };
+          })
+        );
+      } else {
         Object.keys(params.filter || {}).forEach((key) => {
           query[`filter[${key}]`] = params.filter[key];
         });
@@ -140,7 +141,7 @@ export const jsonapiClient = (
     },
 
     getOne: (resource: any, params: { id: any }) => {
-      resource = decodeURI(resource)
+      resource = decodeURI(resource);
       const url = `${apiUrl}/${resource}/${params.id}?include=%2Ball&page[limit]=50`;
       return httpClient(url).then(({ json }: any) => {
         const { id, attributes, relationships } = json.data;
@@ -156,9 +157,13 @@ export const jsonapiClient = (
     },
 
     getMany: (resource: string, params: any) => {
-      resource = decodeURI(resource)
+      resource = decodeURI(resource);
       resource = capitalize(resource);
-      let query = `filter[id]=${params.ids instanceof Array ? params.ids.join(',') : JSON.stringify(params.ids)}`
+      let query = `filter[id]=${
+        params.ids instanceof Array
+          ? params.ids.join(',')
+          : JSON.stringify(params.ids)
+      }`;
       const url = `${apiUrl}/${resource}?${query}`;
       return httpClient(url).then(({ json }: any) => {
         // When meta data and the 'total' setting is provided try
@@ -168,8 +173,8 @@ export const jsonapiClient = (
           total = json.meta[settings.total];
         }
         // Use the length of the data array as a fallback.
-        total = total || json.data.length; //  { id: any; attributes: any; }
-        const jsonData = json.data.map((value: any) =>
+        total = total || json.data?.length; //  { id: any; attributes: any; }
+        const jsonData = json.data?.map((value: any) =>
           Object.assign({ id: value.id }, value.attributes)
         );
 
@@ -181,7 +186,7 @@ export const jsonapiClient = (
     },
 
     getManyReference: (resource: string, params: any) => {
-      resource = decodeURI(resource)
+      resource = decodeURI(resource);
       const { page, perPage } = params.pagination;
       const { field, order } = params.sort;
       const query = {
@@ -191,12 +196,12 @@ export const jsonapiClient = (
           ...params.filter
         })
       };
-      query[`filter[${params.target}]`] = params.id
+      query[`filter[${params.target}]`] = params.id;
       const url = `${apiUrl}/${resource}?${stringify(query)}`;
       const options = {};
 
       return httpClient(url, options).then(({ headers, json }: any) => {
-        if (!headers.has(countHeader)) {
+        if (!headers?.countHeader) {
           console.debug(
             `The ${countHeader} header is missing in the HTTP Response. The simple REST data provider expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare ${countHeader} in the Access-Control-Expose-Headers header?`
           );
@@ -209,8 +214,8 @@ export const jsonapiClient = (
     },
 
     update: (resource: string, params: any) => {
-      resource = decodeURI(resource)
-      let type = conf["resources"][resource].type || resource;
+      resource = decodeURI(resource);
+      let type = conf?.['resources']?.[resource]?.type || resource;
       const arr = settings.endpointToTypeStripLastLetters;
       for (const i in arr) {
         if (resource.endsWith(arr[i])) {
@@ -257,7 +262,7 @@ export const jsonapiClient = (
       ).then((responses) => ({ data: responses.map(({ json }) => json.id) })),
 
     create: (resource: string, params: any) => {
-      resource = decodeURI(resource)
+      resource = decodeURI(resource);
       let type = resource;
       const arr = settings.endpointToTypeStripLastLetters;
       for (const i in arr) {
@@ -292,18 +297,19 @@ export const jsonapiClient = (
         });
     },
 
-    delete: (resource: string, params: any) =>
-      httpClient(`${apiUrl}/${resource}/${params.id}`, {
+    delete: (resource: string, params: any) => {
+      return httpClient(`${apiUrl}/${resource}/${params.id}`, {
         method: 'DELETE',
         headers: new Headers({
           'Content-Type': 'text/plain'
         })
-      }).then(({ json }: any) => ({ data: json })),
+      }).then(({ json }: any) => ({ data: json }));
+    },
 
     // simple-rest doesn't handle filters on DELETE route, so we fallback to calling DELETE n times instead
     deleteMany: (resource: string, params: any) =>
       Promise.all(
-        params.ids.map((id :any) =>
+        params.ids.map((id: any) =>
           httpClient(`${apiUrl}/${resource}/${id}`, {
             method: 'DELETE',
             headers: new Headers({
@@ -316,19 +322,20 @@ export const jsonapiClient = (
       })),
 
     getResources: () => {
-        
-        if(conf){
-            return Promise.resolve({data: conf});
-        };
-        return httpClient(`${apiUrl}/schema`, {
-            method: 'GET'
-        }).then(({json}: any) => {
-            localStorage.setItem('raconf', JSON.stringify(json));
-            return { data: json };
-        })
-        .catch(()=> {return {data : {}} })
+      if (conf) {
+        return Promise.resolve({ data: conf });
       }
-    
+      return httpClient(`${apiUrl}/schema`, {
+        method: 'GET'
+      })
+        .then(({ json }: any) => {
+          localStorage.setItem('raconf', JSON.stringify(json));
+          return { data: json };
+        })
+        .catch(() => {
+          return { data: {} };
+        });
+    }
   };
 };
 
