@@ -2,6 +2,8 @@
 
 ## Example
 
+THe example uses the JSON:API from https://thomaxxl.pythonanywhere.com/api :
+
 ```javascript
 import { Admin, Resource, ListGuesser } from "react-admin";
 import { jsonapiClient } from "rav4-jsonapi-client";
