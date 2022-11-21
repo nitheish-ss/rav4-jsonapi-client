@@ -2,7 +2,7 @@
 
 ## Example
 
-THe example uses the JSON:API from https://thomaxxl.pythonanywhere.com/api :
+The example starts from the [react-admin tutorial](https://marmelab.com/react-admin/Tutorial.html) and uses the JSON:API from http://thomaxxl.pythonanywhere.com/api :
 
 ```javascript
 import { Admin, Resource, ListGuesser } from "react-admin";
