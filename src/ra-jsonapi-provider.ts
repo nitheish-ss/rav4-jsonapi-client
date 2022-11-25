@@ -3,6 +3,12 @@ import { fetchUtils, DataProvider, HttpError } from 'react-admin';
 import merge from 'deepmerge';
 import { defaultSettings } from './default-settings';
 import ResourceLookup from './resourceLookup';
+import { readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
+import {fileURLToPath} from 'url';
+import yaml from 'js-yaml'
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  *
@@ -335,6 +341,17 @@ export const jsonapiClient = (
         .catch(() => {
           return { data: {} };
         });
+    },
+
+    parseYaml:(path: string)=>{
+      try {
+        const result = yaml.load((readFileSync(resolve(__dirname, path)).toString()))
+        conf = (JSON.parse(JSON.stringify(result)))
+        return {parsedYamlConf:conf}
+      } catch (e) {
+        console.log(e);
+        return e;
+      }
     }
   };
 };
