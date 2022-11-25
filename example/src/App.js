@@ -3,8 +3,6 @@ import { Admin, Resource,  EditGuesser } from 'react-admin';
 import {UserList,  UserEdit, UserCreate } from './Users';
 import BookIcon from '@material-ui/icons/Book';
 import UserIcon from '@material-ui/icons/Group';
-//import { Admin, Resource, ShowGuesser, ListGuesser, EditGuesser } from 'react-admin';
-//import restProvider from 'ra-data-simple-rest';
 import {jsonapiClient} from "rav4-jsonapi-client";
 import { BookCreate, BookEdit, BookList } from './Books';
 import {AddressList} from './Addresses'
@@ -22,8 +20,6 @@ function App() {
   const jsonDataProvider = jsonapiClient('https://thomaxxl.pythonanywhere.com/api', settings,);
     return (
       <Admin dashboard={Dashboard} dataProvider={jsonDataProvider} authProvider={authProvider}>
-          {/* <Resource name="posts" list={PostList} create={PostCreate} edit={PostEdit}></Resource>
-          <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit}></Resource>*/}
           <Resource name="Users" list={UserList} edit={UserEdit}  create={UserCreate} icon={UserIcon}></Resource>
           <Resource name="Books" list={BookList } edit={BookEdit} create={BookCreate} icon={BookIcon} />
           <Resource name="Addresses"  list={AddressList } edit={EditGuesser} />

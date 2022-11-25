@@ -15,7 +15,6 @@ export const UserList = props => (
   <List {...props}>
       <Datagrid rowClick="edit">
           <TextField source="id" />
-          {/* <ReferenceField source="address_id" reference="addresses"><TextField source="id" /></ReferenceField> */}
           <EmailField source="email" />
           <TextField source="name" />
           <TextField source="address.street" />
@@ -40,7 +39,6 @@ export const UserEdit = props => (
       <TextInput source="name" validate={validateRequired}>
       </TextInput>
       <TextInput source="email"  />
-      {/* <BooleanInput source="isPresent" /> */}
     </SimpleForm>
   </Edit>
 );  
