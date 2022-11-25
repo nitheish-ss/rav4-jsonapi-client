@@ -12,6 +12,9 @@
     "predeploy": "cd example && yarn install && yarn run build",
     "deploy": "gh-pages -d example/build"
   },
+  "exports" : {
+    "." : "src/ra-jsonapi-provider.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nitheish-ss/rav4-jsonapi-client.git"
